@@ -2,38 +2,24 @@ const express = require('express');
 const { login } = require('../../controllers/Login');
 const router = express.Router();
 
-const sendResponse = (res, statusCode, data = null, message = '') => {
-    res.status(statusCode).json({
-        status: statusCode === 200 ? 'success' : 'error',
-        data: data,
-        message: message
-    });
-};
-
-// Endpoint: Test
-router.get('/test', async (req, res) => {
-    try {
-        sendResponse(res, 200, [], 'Test');
-    } catch (error) {
-        console.error('Test Endpoint Error:', error);
-        sendResponse(res, 500, null, 'Error');
-    }
-});
-
-// Auth
 router.post('/login', async (req, res) => {
-    try {
-        const userData = await login(req);
-        console.log('userData',userData)
-        if (userData) {
-            sendResponse(res, 200, userData, "success login");
-        } else {
-            sendResponse(res, 401, null, "unauthorized");
-        }
-    } catch (error) {
-        console.error('Login Endpoint Error:', error);
-        sendResponse(res, 500, null, 'Internal Server Error');
+
+    const userData = await login(req);
+    const { w_id, user_login } = userData[0];
+
+    if (userData) {
+        res.status(200).send({
+            message: "success",
+            data: { w_id, user_login }
+        });
+    } else {
+        res.status(401).send({
+            message: "unauthorized",
+            data: []
+        });
     }
+
+
 });
 
 module.exports = router;
